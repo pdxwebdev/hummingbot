@@ -50,6 +50,7 @@ class TradeogreExchange(ExchangePyBase):
         self._trading_required = trading_required
         self._trading_pairs = trading_pairs
         self._last_trades_poll_tradeogre_timestamp = 1.0
+        self.cancelled_orders = []
         super().__init__(client_config_map)
 
     @staticmethod
@@ -211,7 +212,7 @@ class TradeogreExchange(ExchangePyBase):
             else:
                 raise
         return o_id, transact_time
-    cancelled = []
+
     async def _place_cancel(self, order_id: str, tracked_order: InFlightOrder):
         api_params = {
             "uuid": tracked_order.exchange_order_id,
@@ -222,6 +223,7 @@ class TradeogreExchange(ExchangePyBase):
             is_auth_required=True,
             limit_id=CONSTANTS.ORDER_PATH_URL)
         if cancel_result.get("success") == True:
+            self.cancelled_orders.append(tracked_order.exchange_order_id)
             return True
         return False
 
@@ -277,7 +279,7 @@ class TradeogreExchange(ExchangePyBase):
 
         new_state = ""
         if updated_order_data.get("error") == "Order not found" :
-          if tracked_order.is_cancelled :
+          if tracked_order in self.cancelled_orders :
             new_state = CONSTANTS.ORDER_STATE["CANCELED"]
           else:
             new_state = CONSTANTS.ORDER_STATE["FILLED"]
