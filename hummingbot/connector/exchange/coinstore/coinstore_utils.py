@@ -1,9 +1,9 @@
 from decimal import Decimal
 from typing import Any, Dict
 
-from pydantic import Field, SecretStr
+from pydantic import ConfigDict, Field, SecretStr
 
-from hummingbot.client.config.config_data_types import BaseConnectorConfigMap, ClientFieldData
+from hummingbot.client.config.config_data_types import BaseConnectorConfigMap
 from hummingbot.core.data_type.trade_fee import TradeFeeSchema
 
 CENTRALIZED = True
@@ -31,28 +31,26 @@ def is_exchange_information_valid(exchange_info: Dict[str, Any]) -> bool:
 
 
 class CoinstoreConfigMap(BaseConnectorConfigMap):
-    connector: str = Field(default="coinstore", const=True, client_data=None)
+    connector: str = "coinstore"
     coinstore_api_key: SecretStr = Field(
         default=...,
-        client_data=ClientFieldData(
-            prompt=lambda cm: "Enter your Coinstore API key",
-            is_secure=True,
-            is_connect_key=True,
-            prompt_on_new=True,
-        )
+        json_schema_extra={
+            "prompt": lambda cm: "Enter your Coinstore API key",
+            "is_secure": True,
+            "is_connect_key": True,
+            "prompt_on_new": True,
+        }
     )
     coinstore_api_secret: SecretStr = Field(
         default=...,
-        client_data=ClientFieldData(
-            prompt=lambda cm: "Enter your Coinstore API secret",
-            is_secure=True,
-            is_connect_key=True,
-            prompt_on_new=True,
-        )
+        json_schema_extra={
+            "prompt": lambda cm: "Enter your Coinstore API secret",
+            "is_secure": True,
+            "is_connect_key": True,
+            "prompt_on_new": True,
+        }
     )
-
-    class Config:
-        title = "coinstore"
+    model_config = ConfigDict(title="coinstore")
 
 
 KEYS = CoinstoreConfigMap.construct()
