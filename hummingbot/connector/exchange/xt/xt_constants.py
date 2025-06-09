@@ -41,6 +41,7 @@ SIDE_SELL = 'SELL'
 TIME_IN_FORCE_GTC = 'GTC'  # Good till cancelled
 TIME_IN_FORCE_IOC = 'IOC'  # Immediate or cancel
 TIME_IN_FORCE_FOK = 'FOK'  # Fill or kill
+TIME_IN_FORCE_GTX = 'GTX'  
 
 XT_VALIDATE_ALGORITHMS = "HmacSHA256"
 XT_VALIDATE_RECVWINDOW = "5000"

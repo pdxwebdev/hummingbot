@@ -183,10 +183,16 @@ class XtExchange(ExchangePyBase):
                       "quantity": amount_str,
                       "type": type_str,
                       "clientOrderId": order_id,
-                      "bizType": "SPOT",
-                      "price": price_str}
-        if order_type == OrderType.LIMIT:
+                      "bizType": "SPOT"}
+        if order_type == OrderType.LIMIT :
+            api_params["price"] = price_str
             api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
+        elif order_type == OrderType.LIMIT_MAKER :
+            api_params["price"] = price_str
+            api_params["type"] = "LIMIT"
+            api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTX
+        elif order_type == OrderType.MARKET:
+           api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_IOC
 
         order_result = await self._api_post(
             path_url=CONSTANTS.ORDER_PATH_URL,
@@ -194,6 +200,8 @@ class XtExchange(ExchangePyBase):
             is_auth_required=True)
 
         if "result" not in order_result or order_result["result"] is None:
+            print(api_params)
+            print(order_result)
             raise
 
         o_id = str(order_result["result"]["orderId"])
@@ -440,8 +448,8 @@ class XtExchange(ExchangePyBase):
                 fee = TradeFeeBase.new_spot_fee(
                     fee_schema=self.trade_fee_schema(),
                     trade_type=order.trade_type,
-                    percent_token=trade["feeCurrency"],
-                    flat_fees=[TokenAmount(amount=Decimal(trade["fee"]), token=trade["feeCurrency"])]
+                    percent_token=trade["feeCurrency"].upper(),
+                    flat_fees=[TokenAmount(amount=Decimal(trade["fee"]), token=trade["feeCurrency"].upper())]
                 )
                 trade_update = TradeUpdate(
                     trade_id=str(trade["tradeId"]),
