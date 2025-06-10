@@ -193,7 +193,10 @@ class XtExchange(ExchangePyBase):
             api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTX
         elif order_type == OrderType.MARKET:
            api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_IOC
-
+           if side_str == CONSTANTS.SIDE_BUY :
+               api_params.pop("quantity", None)
+               quote_amount = price * amount
+               api_params["quoteQty"] = f"{quote_amount:f}"
         order_result = await self._api_post(
             path_url=CONSTANTS.ORDER_PATH_URL,
             data=api_params,
